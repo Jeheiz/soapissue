@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:tns="http://www.map.es/xml-schemas"
+    xmlns:ns1="http://intermediacion.redsara.es/scsp/esquemas/V3/peticion"
+    xmlns:ns2="http://intermediacion.redsara.es/scsp/esquemas/V3/respuesta"
+    xmlns:ns3="http://intermediacion.redsara.es/scsp/esquemas/datosespecificos"
+    xmlns:ns5="http://intermediacion.redsara.es/scsp/esquemas/V3/online/peticion"
+    targetNamespace="http://www.map.es/xml-schemas"
+    name="x53jiServicioOnlineIntermediacion">
+
+    <!-- =========================
+         IMPORTACIÓN DE ESQUEMAS
+    ========================== -->
+    <wsdl:types>
+        <xsd:schema>
+            <xsd:import namespace="http://intermediacion.redsara.es/scsp/esquemas/V3/peticion"
+                        schemaLocation="peticion.xsd"/>
+            <xsd:import namespace="http://intermediacion.redsara.es/scsp/esquemas/V3/respuesta"
+                        schemaLocation="respuesta.xsd"/>
+            <xsd:import namespace="http://intermediacion.redsara.es/scsp/esquemas/datosespecificos"
+                        schemaLocation="datos-especificos.xsd"/>
+            <xsd:import namespace="http://intermediacion.redsara.es/scsp/esquemas/V3/online/peticion"
+                        schemaLocation="online/peticion.xsd"/>
+        </xsd:schema>
+    </wsdl:types>
+
+    <!-- =========================
+         DEFINICIÓN DE MENSAJES
+    ========================== -->
+
+    <!-- Servicio síncrono -->
+    <wsdl:message name="peticionSincrona">
+        <wsdl:part name="peticion" element="ns1:Peticion"/>
+    </wsdl:message>
+    <wsdl:message name="peticionSincronaResponse">
+        <wsdl:part name="respuesta" element="ns2:Respuesta"/>
+    </wsdl:message>
+
+    <!-- Servicio asincrónico - solicitud -->
+    <wsdl:message name="peticionAsincrona">
+        <wsdl:part name="peticion" element="ns5:PeticionAsincrona"/>
+    </wsdl:message>
+    <wsdl:message name="peticionAsincronaResponse">
+        <wsdl:part name="respuesta" element="ns2:Respuesta"/>
+    </wsdl:message>
+
+    <!-- Servicio asincrónico - consulta -->
+    <wsdl:message name="consultarPeticionAsincrona">
+        <wsdl:part name="consultaPeticion" element="ns5:ConsultaPeticionAsincrona"/>
+    </wsdl:message>
+    <wsdl:message name="consultarPeticionAsincronaResponse">
+        <wsdl:part name="consultaRespuesta" element="ns2:Respuesta"/>
+    </wsdl:message>
+
+    <!-- =========================
+         PORT TYPES
+    ========================== -->
+    <wsdl:portType name="IntermediacionOnlinePortType">
+        <wsdl:operation name="peticionSincrona">
+            <wsdl:input message="tns:peticionSincrona"/>
+            <wsdl:output message="tns:peticionSincronaResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+
+    <wsdl:portType name="IntermediacionOnlineAsyncPortType">
+        <wsdl:operation name="peticionAsincrona">
+            <wsdl:input message="tns:peticionAsincrona"/>
+            <wsdl:output message="tns:peticionAsincronaResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="consultarPeticionAsincrona">
+            <wsdl:input message="tns:consultarPeticionAsincrona"/>
+            <wsdl:output message="tns:consultarPeticionAsincronaResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+
+    <!-- =========================
+         BINDINGS
+    ========================== -->
+    <wsdl:binding name="IntermediacionOnlinePortBinding" type="tns:IntermediacionOnlinePortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="peticionSincrona">
+            <soap:operation soapAction="peticionSincrona"/>
+            <wsdl:input><soap:body use="literal"/></wsdl:input>
+            <wsdl:output><soap:body use="literal"/></wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <wsdl:binding name="IntermediacionOnlineAsyncPortBinding" type="tns:IntermediacionOnlineAsyncPortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="peticionAsincrona">
+            <soap:operation soapAction="peticionAsincrona"/>
+            <wsdl:input><soap:body use="literal"/></wsdl:input>
+            <wsdl:output><soap:body use="literal"/></wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="consultarPeticionAsincrona">
+            <soap:operation soapAction="consultarPeticionAsincrona"/>
+            <wsdl:input><soap:body use="literal"/></wsdl:input>
+            <wsdl:output><soap:body use="literal"/></wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <!-- =========================
+         SERVICES
+    ========================== -->
+    <wsdl:service name="x53jiServicioOnlineIntermediacion">
+        <wsdl:port name="IntermediacionOnlinePort" binding="tns:IntermediacionOnlinePortBinding">
+            <soap:address location="http://localhost:8080/ittxartela/online"/>
+        </wsdl:port>
+        <wsdl:port name="IntermediacionOnlineAsyncPort" binding="tns:IntermediacionOnlineAsyncPortBinding">
+            <soap:address location="http://localhost:8080/ittxartela/onlineAsync"/>
+        </wsdl:port>
+    </wsdl:service>
+
+</wsdl:definitions>

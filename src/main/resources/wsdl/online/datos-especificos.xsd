@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://intermediacion.redsara.es/scsp/esquemas/datosespecificos"
+           xmlns="http://intermediacion.redsara.es/scsp/esquemas/datosespecificos"
+           elementFormDefault="qualified">
+    <xs:element name="DatosEspecificos" type="DatosEspecificosItTxartela"/>
+
+    <xs:complexType name="DatosEspecificosItTxartela">
+        <xs:sequence>
+            <xs:element ref="Consulta" minOccurs="0"/>
+            <xs:element ref="Retorno" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="Consulta" type="Consulta"/>
+
+    <xs:complexType name="Consulta">
+        <xs:all>
+            <xs:element name="idTraza" type="xs:string"/>
+            <xs:element name="Documentacion" type="xs:string"/>
+            <xs:element name="FechaLimite" type="xs:string"/>
+            <xs:element name="TipoCertificacion">
+                <xs:simpleType>
+                    <xs:restriction base="xs:int">
+                        <xs:totalDigits value="1"/>
+                        <xs:minInclusive value="0"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:element name="Retorno" type="Retorno"/>
+
+    <xs:complexType name="Retorno">
+        <xs:sequence>
+            <xs:element ref="DatosTraza" minOccurs="0"/>
+            <xs:element ref="EstadoResultado" minOccurs="0"/>
+            <xs:element ref="Personas" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="DatosTraza" type="Traza"/>
+
+    <xs:complexType name="Traza">
+        <xs:all>
+            <xs:element name="IdPeticion" type="xs:string" minOccurs="0"/>
+            <xs:element name="IdTraza" type="xs:string" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:element name="EstadoResultado" type="EstadoResultado"/>
+
+    <xs:complexType name="EstadoResultado">
+        <xs:all>
+            <xs:element name="Resultado" type="xs:string" minOccurs="0"/>
+            <xs:element name="Descripcion" type="xs:string" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:element name="Personas" type="Personas"/>
+
+    <xs:complexType name="Personas">
+        <xs:sequence>
+            <xs:element ref="Persona" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="Persona" type="Persona"/>
+
+    <xs:complexType name="Persona">
+        <xs:sequence>
+            <xs:element name="Documentacion" type="xs:string" minOccurs="0"/>
+            <xs:element ref="Certificados" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="Certificados" type="Certificados"/>
+
+    <xs:complexType name="Certificados">
+        <xs:sequence>
+            <xs:element ref="Certificado" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="Certificado" type="Certificado"/>
+
+    <xs:complexType name="Certificado">
+        <xs:all>
+            <xs:element name="CodigoModulo" type="xs:string" minOccurs="0"/>
+            <xs:element name="FechaExamen" type="xs:string" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+
+</xs:schema>

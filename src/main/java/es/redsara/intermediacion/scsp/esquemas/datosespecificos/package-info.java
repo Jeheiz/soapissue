@@ -1,0 +1,2 @@
+@javax.xml.bind.annotation.XmlSchema(namespace = "http://intermediacion.redsara.es/scsp/esquemas/datosespecificos", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+package es.redsara.intermediacion.scsp.esquemas.datosespecificos;

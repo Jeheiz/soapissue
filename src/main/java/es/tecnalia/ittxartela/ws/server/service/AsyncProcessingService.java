@@ -32,7 +32,6 @@ import es.tecnalia.ittxartela.ws.server.repository.AlumnoRepository;
 import es.tecnalia.ittxartela.ws.server.repository.MatriculaRepository;
 import es.tecnalia.ittxartela.ws.server.util.XmlUtil;
 import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 @Service
 public class AsyncProcessingService {
@@ -53,7 +52,7 @@ public class AsyncProcessingService {
     private AlumnoRepository alumnoRepository;
     
     @Transactional
-    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelayString = "${ittxartela.async.polling-interval-ms:60000}")
     public void procesarPendientes() {
         List<AsyncPeticion> pendientes = asyncPeticionRepository
                 .findByEstadoOrderByIdAsc(EstadoPeticionAsincrona.RECIBIDA.getCodigo());
@@ -116,12 +115,12 @@ public class AsyncProcessingService {
             String dni = st.getDatosGenericos().getTitular().getDocumentacion();
             dni = (dni != null ? dni.trim().toUpperCase() : null);
 
-            // Obtener tipoCertificacion
-            Integer tipoCertificacion = Optional.ofNullable(st.getDatosEspecificos())
+            Integer tipoCertificacionValida = Optional.ofNullable(st.getDatosEspecificos())
                     .map(es.redsara.intermediacion.scsp.esquemas.datosespecificos.DatosEspecificosItTxartela::getConsulta)
                     .map(es.redsara.intermediacion.scsp.esquemas.datosespecificos.Consulta::getTipoCertificacion)
                     .filter(tc -> tc != null && (tc == 1 || tc == 2))
-                    .orElse(1); // ⚙ Valor por defecto
+                    .orElse(null);
+
 
             // Obtener y ajustar fecha límite
             String fechaLimiteStr = Optional.ofNullable(st.getDatosEspecificos())
@@ -131,23 +130,22 @@ public class AsyncProcessingService {
 
             Date fechaLimite = parseFechaLimite(fechaLimiteStr);
 
-            Timestamp fechaLimiteTs = null;
+            Date endOfDay = null;
             if (fechaLimite != null) {
                 java.time.LocalDateTime eod = fechaLimite.toInstant()
                         .atZone(java.time.ZoneId.systemDefault())
                         .toLocalDate()
                         .atTime(java.time.LocalTime.MAX);
-                fechaLimiteTs = Timestamp.valueOf(eod);
+                endOfDay = Date.from(eod.atZone(java.time.ZoneId.systemDefault()).toInstant());
             }
 
             log.info("[ASYNC] Ejecutando consulta -> DNI={}, tipoCertificacion={}, fechaLimite(EOD)={}",
-                    dni, tipoCertificacion, fechaLimiteTs);
+                    dni, tipoCertificacionValida, endOfDay);
 
             List<Matricula> certificaciones =
-                    matriculaRepository.obtenerCertificacionesAprobadas(dni, tipoCertificacion, fechaLimiteTs);
+                    matriculaRepository.findCertificacionesValidas(dni, tipoCertificacionValida, endOfDay);
 
-            log.info("[ASYNC] Resultados -> {} registros encontrados para DNI={} (fechaLimite(EOD)={}, tipoCertificacion={})",
-                    certificaciones.size(), dni, fechaLimiteTs, tipoCertificacion);
+            log.info("[ASYNC] Resultados -> {} registros encontrados", certificaciones.size());
 
             // 🧠 Log detallado de filas obtenidas
             certificaciones.forEach(m ->
@@ -253,3 +251,4 @@ public class AsyncProcessingService {
         }
     }
 }
+

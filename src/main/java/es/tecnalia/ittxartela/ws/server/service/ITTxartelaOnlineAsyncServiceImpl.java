@@ -19,7 +19,6 @@ import es.tecnalia.ittxartela.ws.server.util.PeticionValidator;
 import es.tecnalia.ittxartela.ws.server.util.XmlUtil;
 import lombok.extern.slf4j.Slf4j;
 
-
 @Slf4j
 @Service
 @WebService(

@@ -1,0 +1,118 @@
+package es.tecnalia.ittxartela.ws.server.service;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+class ITTxartelaOnlineServiceSoapTest {
+
+    @LocalServerPort
+    private int port;
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    @Test
+    void soapEndpointReturnsOkForTipoCertificacionCero() {
+        String envelope = buildSoapEnvelope("16054223Q");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_XML);
+        headers.add("SOAPAction", "peticionSincrona");
+
+        String endpoint = "http://localhost:" + port + "/ittxartela/ittxartela/online";
+        ResponseEntity<String> response =
+                restTemplate.postForEntity(endpoint, new HttpEntity<>(envelope, headers), String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        String body = response.getBody();
+        assertThat(body).contains("<ns2:Resultado>OK</ns2:Resultado>");
+        assertThat(body).contains("<ns2:Descripcion>Certificaciones aprobadas encontradas</ns2:Descripcion>");
+        assertThat(body).contains("<ns2:CodigoModulo>");
+        assertThat(body).contains("<ns2:Documentacion>16054223Q</ns2:Documentacion>");
+    }
+
+    private String buildSoapEnvelope(String dni) {
+        String fechaLimite = "2025-12-31";
+        String template =
+                "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\""
+                        + " xmlns:ns1=\"http://intermediacion.redsara.es/scsp/esquemas/V3/peticion\""
+                        + " xmlns:ns2=\"http://intermediacion.redsara.es/scsp/esquemas/datosespecificos\">"
+                        + "<soapenv:Header/>"
+                        + "<soapenv:Body>"
+                        + "<ns1:Peticion>"
+                        + "<ns1:Atributos>"
+                        + "<ns1:IdPeticion>SOAP-%s</ns1:IdPeticion>"
+                        + "<ns1:NumElementos>1</ns1:NumElementos>"
+                        + "<ns1:TimeStamp>2024-11-07T12:00:00</ns1:TimeStamp>"
+                        + "<ns1:CodigoCertificado>ITTXARTELA</ns1:CodigoCertificado>"
+                        + "</ns1:Atributos>"
+                        + "<ns1:Solicitudes>"
+                        + "<ns1:SolicitudTransmision>"
+                        + "<ns1:DatosGenericos>"
+                        + "<ns1:Emisor>"
+                        + "<ns1:NifEmisor>S1234567Z</ns1:NifEmisor>"
+                        + "<ns1:NombreEmisor>ITTxartela</ns1:NombreEmisor>"
+                        + "</ns1:Emisor>"
+                        + "<ns1:Solicitante>"
+                        + "<ns1:IdentificadorSolicitante>ORG1</ns1:IdentificadorSolicitante>"
+                        + "<ns1:NombreSolicitante>Departamento de Pruebas</ns1:NombreSolicitante>"
+                        + "<ns1:UnidadTramitadora>ITTxartela</ns1:UnidadTramitadora>"
+                        + "<ns1:Procedimiento>"
+                        + "<ns1:CodProcedimiento>PROC_ITTXARTELA</ns1:CodProcedimiento>"
+                        + "<ns1:NombreProcedimiento>ITTxartela</ns1:NombreProcedimiento>"
+                        + "</ns1:Procedimiento>"
+                        + "<ns1:Finalidad>Verificacion de certificaciones ITTxartela</ns1:Finalidad>"
+                        + "<ns1:Consentimiento>Si</ns1:Consentimiento>"
+                        + "<ns1:IdExpediente>EXP-%s</ns1:IdExpediente>"
+                        + "</ns1:Solicitante>"
+                        + "<ns1:Titular>"
+                        + "<ns1:TipoDocumentacion>NIF</ns1:TipoDocumentacion>"
+                        + "<ns1:Documentacion>%s</ns1:Documentacion>"
+                        + "<ns1:Nombre>Juan</ns1:Nombre>"
+                        + "<ns1:Apellido1>Bartolome</ns1:Apellido1>"
+                        + "</ns1:Titular>"
+                        + "<ns1:Transmision>"
+                        + "<ns1:CodigoCertificado>ITTXARTELA</ns1:CodigoCertificado>"
+                        + "<ns1:IdSolicitud>SOL-%s</ns1:IdSolicitud>"
+                        + "<ns1:IdTransmision>TRANS-%s</ns1:IdTransmision>"
+                        + "<ns1:FechaGeneracion>2024-11-07T12:00:00</ns1:FechaGeneracion>"
+                        + "</ns1:Transmision>"
+                        + "</ns1:DatosGenericos>"
+                        + "<ns2:DatosEspecificos>"
+                        + "<ns2:Consulta>"
+                        + "<ns2:idTraza>TRAZA-%s</ns2:idTraza>"
+                        + "<ns2:Documentacion>%s</ns2:Documentacion>"
+                        + "<ns2:FechaLimite>%s</ns2:FechaLimite>"
+                        + "<ns2:TipoCertificacion>0</ns2:TipoCertificacion>"
+                        + "</ns2:Consulta>"
+                        + "</ns2:DatosEspecificos>"
+                        + "</ns1:SolicitudTransmision>"
+                        + "</ns1:Solicitudes>"
+                        + "</ns1:Peticion>"
+                        + "</soapenv:Body>"
+                        + "</soapenv:Envelope>";
+        return String.format(
+                template,
+                dni,
+                dni,
+                dni,
+                dni,
+                dni,
+                dni,
+                dni,
+                fechaLimite);
+    }
+}

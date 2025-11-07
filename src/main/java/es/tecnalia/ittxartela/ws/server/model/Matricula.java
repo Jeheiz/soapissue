@@ -99,7 +99,7 @@ public class Matricula {
     @Column
     private Integer id_origen;
 
-    @Column(name = "idSesion")
+    @Column
     private String idSesion;
 
     @Column
@@ -129,3 +129,4 @@ public class Matricula {
     @Column
     private String idioma;
 }
+
